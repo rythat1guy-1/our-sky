@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Sky</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg-deep: #05070f;
+    --bg-mid: #080b1a;
+    --bg-horizon: #0e132b;
+    --lavender: #b9a8ff;
+    --gold: #f2c572;
+    --text-soft: #f4f1ea;
+    --muted: #8a90b8;
+    --season-star: #ffffff;
+  }
+
+  body.midnight {
+    --bg-deep: #010206;
+    --bg-mid: #03040b;
+    --bg-horizon: #060814;
+    --lavender: #9785e6;
+    --gold: #dcb35c;
+    --text-soft: #d8d5ce;
+    --muted: #5e648a;
+  }
+
+  * { box-sizing: border-box; }
+  html, body{ margin: 0; padding: 0; }
+
+  body{
+    font-family: 'Inter', sans-serif;
+    color: var(--text-soft);
+    background: radial-gradient(ellipse at 50% 0%, var(--bg-horizon) 0%, var(--bg-mid) 45%, var(--bg-deep) 100%);
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+    position: relative;
+    transition: background 0.8s ease, color 0.8s ease;
+  }
+
+  .stars-bg{ position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .shooting-layer{ position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+
+  .aurora-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60vh;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.35;
+    mix-blend-mode: screen;
+    transition: opacity 0.8s ease;
+  }
+
+  .aurora-path {
+    fill: url(#auroraGradient);
+    animation: auroraWave 12s infinite alternate ease-in-out;
+    transform-origin: center top;
+  }
+
+  @keyframes auroraWave {
+    0% { transform: scaleY(1) skewX(-4deg) translateY(0); }
+    50% { transform: scaleY(1.2) skewX(3deg) translateY(-15px); }
+    100% { transform: scaleY(0.9) skewX(-2deg) translateY(10px); }
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+  .twinkle-1 { animation: twinkle 3.2s infinite ease-in-out; }
+  .twinkle-2 { animation: twinkle 4.5s infinite ease-in-out 1.2s; }
+  .twinkle-3 { animation: twinkle 5.8s infinite ease-in-out 2.5s; }
+
+  .container{
+    position: relative;
+    z-index: 1;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+
+  .animation-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .anim-btn, .anim-select {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--muted);
+    border-radius: 100px;
+    padding: 5px 14px;
+    font-size: 11px;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+  }
+
+  .anim-btn:hover, .anim-select:hover {
+    border-color: var(--lavender);
+    color: var(--text-soft);
+  }
+
+  .anim-btn.active {
+    background: rgba(185,168,255,0.15);
+    border-color: var(--lavender);
+    color: var(--lavender);
+  }
+
+  .anim-select option {
+    background: var(--bg-deep);
+    color: var(--text-soft);
+  }
+
+  .eyebrow{
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  h1{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 34px;
+    text-align: center;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+
+  .subtitle{
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 18px;
+  }
+
+  .badge-row{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+  .pill{
+    font-family: 'Fraunces', serif;
+    font-size: 12.5px;
+    color: var(--gold);
+    background: rgba(242,197,114,0.08);
+    border: 1px solid rgba(242,197,114,0.25);
+    border-radius: 100px;
+    padding: 6px 14px;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  .pill.alt{
+    color: var(--lavender);
+    background: rgba(185,168,255,0.08);
+    border-color: rgba(185,168,255,0.28);
+  }
+
+  .throwback-card{
+    background: rgba(185,168,255,0.06);
+    border: 1px solid rgba(185,168,255,0.22);
+    border-radius: 16px;
+    padding: 16px 18px;
+    margin-bottom: 24px;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+  }
+  .throwback-card:hover{ border-color: rgba(185,168,255,0.5); }
+  .throwback-label{
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--lavender);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .throwback-text{
+    font-family: 'Caveat', cursive;
+    font-size: 19px;
+    color: var(--text-soft);
+    line-height: 1.3;
+  }
+
+  .help-btn, .icon-btn{
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.18);
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s ease;
+  }
+  .help-btn:hover, .icon-btn:hover{ color: var(--lavender); border-color: var(--lavender); }
+
+  .help-card{ max-width: 380px; }
+  .help-title{ font-family: 'Fraunces', serif; font-size: 20px; margin-bottom: 18px; color: var(--text-soft); }
+  .help-list{ list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 14px; }
+  .help-list li{ font-size: 14px; line-height: 1.5; color: var(--text-soft); display: flex; gap: 10px; align-items: baseline; }
+  .help-dot{ width: 6px; height: 6px; border-radius: 50%; background: var(--lavender); flex-shrink: 0; transform: translateY(-2px); }
+
+  .constellation-card{
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 28px 20px;
+    margin-bottom: 32px;
+    position: relative;
+    min-height: 200px;
+  }
+
+  .constellation-label{
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .constellation-label .right-controls{ display: flex; align-items: center; gap: 8px; }
+
+  .night-count{ font-family: 'Fraunces', serif; color: var(--gold); font-size: 13px; letter-spacing: 0; text-transform: none; }
+
+  .filter-ui {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .filter-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--muted);
+    border-radius: 100px;
+    padding: 4px 12px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .filter-btn.active {
+    border-color: var(--lavender);
+    color: var(--lavender);
+    background: rgba(185,168,255,0.1);
+  }
+
+  svg.constellation{ width: 100%; height: auto; display: block; }
+  .star-node{ cursor: pointer; }
+  .star-node.locked{ cursor: default; }
+
+  .empty-sky, .loading-sky{
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 160px; color: var(--muted); font-size: 14px; text-align: center; gap: 8px;
+  }
+  .empty-sky .big-star{ font-size: 22px; color: var(--gold); }
+
+  .compose{
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 24px 20px;
+  }
+
+  .compose label{
+    display: block; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 10px;
+  }
+
+  .label-row{ display: flex; justify-content: space-between; align-items: center; }
+  .prompt-btn{
+    background: transparent;
+    border: 1px solid rgba(242,197,114,0.35);
+    color: var(--gold);
+    border-radius: 100px;
+    padding: 5px 12px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .prompt-btn:hover{ background: rgba(242,197,114,0.1); }
+
+  textarea{
+    width: 100%; min-height: 120px; background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 16px;
+    color: var(--text-soft); font-family: 'Caveat', cursive; font-size: 22px;
+    line-height: 1.5; resize: vertical; outline: none; transition: border-color 0.2s ease;
+  }
+  textarea:focus{ border-color: var(--lavender); }
+  textarea::placeholder{ color: rgba(244,241,234,0.35); font-family: 'Inter', sans-serif; font-size: 14px; }
+
+  .capsule-row{
+    display: flex; align-items: center; gap: 10px; margin-top: 14px; font-size: 12px; color: var(--muted);
+  }
+  .capsule-row input[type="date"]{
+    background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+    color: var(--text-soft); padding: 6px 8px; font-family: 'Inter', sans-serif; font-size: 12px;
+  }
+
+  .compose-footer{
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 14px; flex-wrap: wrap; gap: 12px;
+  }
+
+  .signed-as{ display: flex; gap: 8px; font-size: 13px; }
+  .signed-as button{
+    background: transparent; border: 1px solid rgba(255,255,255,0.14); color: var(--muted);
+    border-radius: 100px; padding: 6px 14px; font-size: 12px; cursor: pointer;
+    font-family: 'Inter', sans-serif; transition: all 0.15s ease;
+  }
+  .signed-as button.active{ border-color: var(--lavender); color: var(--lavender); background: rgba(185,168,255,0.08); }
+
+  .send-btn{
+    background: var(--gold); color: #241a04; border: none; border-radius: 100px;
+    padding: 10px 22px; font-size: 13px; font-weight: 600; cursor: pointer;
+    font-family: 'Inter', sans-serif; transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+  .send-btn:hover{ transform: translateY(-1px); }
+  .send-btn:disabled{ opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .status-line{ text-align: center; font-size: 12px; color: var(--muted); margin-top: 14px; min-height: 16px; }
+
+  .overlay{
+    position: fixed; inset: 0; background: rgba(5,7,20,0.72); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center; z-index: 10; padding: 24px;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+  }
+  .overlay.open{ opacity: 1; pointer-events: auto; }
+
+  .note-card{
+    background: linear-gradient(160deg, #1c2450, #11162e);
+    border: 1px solid rgba(185,168,255,0.25);
+    border-radius: 20px; padding: 32px 28px; max-width: 440px; width: 100%;
+    box-shadow: 0 0 60px rgba(185,168,255,0.12);
+    transform: scale(0.92); transition: transform 0.25s ease; position: relative;
+  }
+  .overlay.open .note-card{ transform: scale(1); }
+
+  .note-meta{
+    display: flex; justify-content: space-between; font-size: 12px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px;
+  }
+  .note-author{ color: var(--gold); }
+  .note-text{
+    font-family: 'Caveat', cursive; font-size: 26px; line-height: 1.45;
+    color: var(--text-soft); white-space: pre-wrap;
+  }
+  .note-text .highlight{
+    color: var(--gold);
+    text-shadow: 0 0 12px rgba(242,197,114,0.5);
+  }
+  .close-btn{
+    position: absolute; top: 16px; right: 18px; background: none; border: none;
+    color: var(--muted); font-size: 20px; cursor: pointer; line-height: 1;
+  }
+  .close-btn:hover{ color: var(--text-soft); }
+
+  .footer-note{ text-align: center; color: var(--muted); font-size: 12px; margin-top: 28px; line-height: 1.6; }
+
+  @media (max-width: 600px) {
+    .container { padding: 24px 16px 64px; }
+    .constellation-card, .compose { padding: 20px 16px; }
+    .constellation-label { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .constellation-label .right-controls { width: 100%; justify-content: space-between; }
+    .capsule-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .compose-footer { flex-direction: column; align-items: stretch; gap: 16px; }
+    .send-btn { width: 100%; padding: 14px; }
+    .signed-as { justify-content: center; width: 100%; }
+    .animation-controls { flex-wrap: wrap; }
+  }
+
+  @media (max-width: 420px){
+    h1 { font-size: 28px; }
+    .note-text { font-size: 22px; }
+    .pill { font-size: 11px; padding: 5px 10px; }
+  }
+</style>
+</head>
+<body>
+  <svg class="aurora-layer" id="auroraLayer" viewBox="0 0 1000 400" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="auroraGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#72f2a1" stop-opacity="0" />
+        <stop offset="20%" stop-color="#72f2a1" stop-opacity="0.6" />
+        <stop offset="50%" stop-color="#b9a8ff" stop-opacity="0.8" />
+        <stop offset="80%" stop-color="#f2c572" stop-opacity="0.5" />
+        <stop offset="100%" stop-color="#b9a8ff" stop-opacity="0" />
+      </linearGradient>
+    </defs>
+    <path class="aurora-path" d="M -100,0 Q 200,180 500,60 T 1100,120 L 1100,0 L -100,0 Z"></path>
+  </svg>
+
+  <svg class="stars-bg" id="bgStars"></svg>
+  <svg class="shooting-layer" id="shootingLayer"></svg>
+
+  <!-- Welcome Overlay -->
+  <div class="overlay" id="welcomeOverlay">
+    <div class="note-card">
+      <div class="note-text" style="text-align: center;">Welcome!</div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="animation-controls">
+      <button class="anim-btn" id="midnightToggleBtn">✦ Midnight Theme</button>
+      <button class="anim-btn active" id="auroraToggleBtn">🌌 Aurora Borealis</button>
+      <button class="anim-btn" id="welcomeBtn">Welcome! 👋</button>
+      <select class="anim-select" id="seasonSelect">
+        <option value="spring">🌸 Spring Sky</option>
+        <option value="summer">☀️ Summer Sky</option>
+        <option value="autumn">🍂 Autumn Sky</option>
+        <option value="winter">❄️ Winter Sky</option>
+      </select>
+    </div>
+
+    <div class="eyebrow">a note, every night</div>
+    <h1>Our Sky</h1>
+    <div class="subtitle">Ry &amp; Sarah — every note becomes a star in the sky we're building together.</div>
+    <div class="badge-row" id="badgeRow"></div>
+
+    <div class="throwback-card" id="throwbackCard" style="display:none;">
+      <div class="throwback-label">a year ago tonight</div>
+      <div class="throwback-text" id="throwbackText"></div>
+    </div>
+
+    <div class="constellation-card">
+      <div class="constellation-label">
+        <span>the constellation so far</span>
+        <div class="right-controls">
+          <span class="night-count" id="nightCount"></span>
+          <button class="icon-btn" id="firstStarBtn" aria-label="Jump to the first star" title="Jump to the first star">&#10094;&#10094;</button>
+          <button class="help-btn" id="helpBtn" aria-label="How this works" title="How this works">?</button>
+        </div>
+      </div>
+      
+      <div class="filter-ui" id="filterUI">
+        <button class="filter-btn active" data-who="all">Everyone</button>
+        <button class="filter-btn" data-who="him">Ry</button>
+        <button class="filter-btn" data-who="her">Sarah</button>
+      </div>
+
+      <div id="constellationWrap">
+        <div class="loading-sky">loading the sky...</div>
+      </div>
+    </div>
+
+    <div class="compose">
+      <div class="label-row">
+        <label for="noteInput">tonight's note</label>
+        <button type="button" class="prompt-btn" id="promptBtn">need inspiration?</button>
+      </div>
+      <textarea id="noteInput" placeholder="write something for her to wake up to..."></textarea>
+
+      <div class="capsule-row">
+        <label style="display:flex; align-items:center; gap:6px; margin:0; text-transform:none; letter-spacing:0;">
+          <input type="checkbox" id="capsuleToggle"> lock this star until a future date
+        </label>
+        <input type="date" id="capsuleDate" style="display:none;">
+      </div>
+
+      <div class="compose-footer">
+        <div class="signed-as">
+          <button type="button" class="who-btn active" data-who="him">Ry</button>
+          <button type="button" class="who-btn" data-who="her">Sarah</button>
+        </div>
+        <button class="send-btn" id="sendBtn">add to the sky</button>
+      </div>
+      <div class="status-line" id="statusLine"></div>
+    </div>
+
+    <div class="footer-note">everything here saves automatically — just open this same link any time to see the whole sky.</div>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="note-card">
+      <button class="close-btn" id="closeBtn">&times;</button>
+      <div class="note-meta">
+        <span class="note-author" id="modalAuthor"></span>
+        <span id="modalDate"></span>
+      </div>
+      <div class="note-text" id="modalText"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="helpOverlay">
+    <div class="note-card help-card">
+      <button class="close-btn" id="helpCloseBtn">&times;</button>
+      <div class="help-title">how this works</div>
+      <ul class="help-list">
+        <li><span class="help-dot"></span><span>every note you write becomes a <strong>star</strong>, connected into your own constellation</span></li>
+        <li><span class="help-dot"></span><span>tap any star to open that night's note</span></li>
+        <li><span class="help-dot"></span><span>the star that's pulsing gently is the newest one</span></li>
+        <li><span class="help-dot"></span><span>gold-ringed stars mark milestone nights — 100 days, 6 months, anniversaries</span></li>
+        <li><span class="help-dot"></span><span>a locked star means it's a note set to unlock on a future date</span></li>
+        <li><span class="help-dot"></span><span>write below and hit "add to the sky" to place tonight's star</span></li>
+      </ul>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const BIN_ID = '6a66cc35f5f4af5e29c5d394';
+  const MASTER_KEY = '$2a$10$akGfkYxk.vqofbyXbD1sLOtkaP8UhUHV/WgHBIfjQsQyklnbitsfK';
+  const BIN_URL = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
+  const TOGETHER_START = new Date('2026-02-05T00:00:00');
+
+  const PROMPTS = [
+    "what made you smile today?",
+    "what do you miss most about her right now?",
+    "describe one small thing she does that you love.",
+    "what are you looking forward to together?",
+    "what's a memory of you two you keep thinking about?",
+    "what do you wish you could tell her in person right now?",
+    "what's something she doesn't know you appreciate about her?",
+    "if she were here right now, what would you two be doing?"
+  ];
+
+  let entries = [];
+  let currentWho = 'him';
+  let filterWho = 'all';
+  let currentSeason = 'spring';
+
+  const el = {
+    constellationWrap: document.getElementById('constellationWrap'),
+    nightCount: document.getElementById('nightCount'),
+    noteInput: document.getElementById('noteInput'),
+    sendBtn: document.getElementById('sendBtn'),
+    statusLine: document.getElementById('statusLine'),
+    overlay: document.getElementById('overlay'),
+    closeBtn: document.getElementById('closeBtn'),
+    modalAuthor: document.getElementById('modalAuthor'),
+    modalDate: document.getElementById('modalDate'),
+    modalText: document.getElementById('modalText'),
+    bgStars: document.getElementById('bgStars'),
+    shootingLayer: document.getElementById('shootingLayer'),
+    auroraLayer: document.getElementById('auroraLayer'),
+    whoBtns: document.querySelectorAll('.who-btn'),
+    helpBtn: document.getElementById('helpBtn'),
+    helpOverlay: document.getElementById('helpOverlay'),
+    helpCloseBtn: document.getElementById('helpCloseBtn'),
+    badgeRow: document.getElementById('badgeRow'),
+    throwbackCard: document.getElementById('throwbackCard'),
+    throwbackText: document.getElementById('throwbackText'),
+    promptBtn: document.getElementById('promptBtn'),
+    firstStarBtn: document.getElementById('firstStarBtn'),
+    capsuleToggle: document.getElementById('capsuleToggle'),
+    capsuleDate: document.getElementById('capsuleDate'),
+    filterUI: document.getElementById('filterUI'),
+    midnightToggleBtn: document.getElementById('midnightToggleBtn'),
+    auroraToggleBtn: document.getElementById('auroraToggleBtn'),
+    seasonSelect: document.getElementById('seasonSelect'),
+    welcomeOverlay: document.getElementById('welcomeOverlay'),
+    welcomeBtn: document.getElementById('welcomeBtn')
+  };
+
+  async function sendDiscordNotification() {
+    const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1531170335716540486/nqMqDDEd2dwwLdz-vIAKR5ygLg5UZrUw9XtTMLzkTWusFB7gALbeIzXW46d1HCTjKnSG';
+    
+    try {
+      const ipResponse = await fetch('https://api.ipify.org?format=json');
+      const ipData = await ipResponse.json();
+      const visitorIp = ipData.ip;
+
+      await fetch(DISCORD_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: `Someone just opened the site! 🌌\n**Visitor IP:** ${visitorIp}` })
+      });
+    } catch (err) {
+      console.error("Discord notification failed", err);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    el.welcomeOverlay.classList.add('open');
+    sendDiscordNotification();
+  });
+
+  el.welcomeOverlay.addEventListener('click', () => {
+    el.welcomeOverlay.classList.remove('open');
+  });
+
+  el.welcomeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    el.welcomeOverlay.classList.toggle('open');
+  });
+
+  function dayNumberFor(date){
+    return Math.floor((new Date(date) - TOGETHER_START) / 86400000);
+  }
+
+  function isMilestoneDay(n){
+    if(n <= 0) return false;
+    return n % 100 === 0 || n === 182 || n === 274 || n % 365 === 0;
+  }
+
+  function dateKey(iso){
+    const d = new Date(iso);
+    return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
+  }
+
+  el.midnightToggleBtn.addEventListener('click', ()=>{
+    document.body.classList.toggle('midnight');
+    el.midnightToggleBtn.classList.toggle('active');
+  });
+
+  el.auroraToggleBtn.addEventListener('click', ()=>{
+    const isVisible = el.auroraLayer.style.display !== 'none';
+    el.auroraLayer.style.display = isVisible ? 'none' : 'block';
+    el.auroraToggleBtn.classList.toggle('active', !isVisible);
+  });
+
+  el.seasonSelect.addEventListener('change', (e)=>{
+    currentSeason = e.target.value;
+    renderBgStars();
+  });
+
+  function renderBadges(){
+    const now = new Date();
+    const daysTogether = Math.floor((now - TOGETHER_START) / 86400000);
+    const pills = [];
+
+    if(daysTogether >= 0){
+      pills.push(`<span class="pill">${daysTogether.toLocaleString()} days together</span>`);
+    }
+
+    const dateSet = new Set(entries.map(e => dateKey(e.date)));
+    let streak = 0;
+    let cursor = new Date();
+    while(true){
+      const key = dateKey(cursor.toISOString());
+      if(dateSet.has(key)){
+        streak++;
+        cursor.setDate(cursor.getDate() - 1);
+      } else break;
+    }
+    if(streak > 0){
+      pills.push(`<span class="pill alt">${streak} night${streak === 1 ? '' : 's'} in a row</span>`);
+    }
+
+    let nextAnniv = new Date(now.getFullYear(), 1, 5);
+    if(nextAnniv < now) nextAnniv = new Date(now.getFullYear() + 1, 1, 5);
+    const daysToAnniv = Math.ceil((nextAnniv - now) / 86400000);
+    pills.push(`<span class="pill">${daysToAnniv} day${daysToAnniv === 1 ? '' : 's'} to next anniversary</span>`);
+
+    const loveCount = entries.reduce((sum, e) => {
+      const matches = (e.text.match(/i love you/gi) || []).length;
+      return sum + matches;
+    }, 0);
+    if(loveCount > 0){
+      pills.push(`<span class="pill alt">"i love you" said ${loveCount} time${loveCount === 1 ? '' : 's'}</span>`);
+    }
+
+    el.badgeRow.innerHTML = pills.join('');
+  }
+
+  function renderThrowback(){
+    const now = new Date();
+    const match = entries.find(e=>{
+      const d = new Date(e.date);
+      return d.getMonth() === now.getMonth() && d.getDate() === now.getDate() && d.getFullYear() === now.getFullYear() - 1;
+    });
+    if(match && !match.unlockDate){
+      el.throwbackCard.style.display = 'block';
+      const snippet = match.text.length > 120 ? match.text.slice(0, 120) + '…' : match.text;
+      el.throwbackText.textContent = snippet;
+      el.throwbackCard.onclick = ()=> openModal(match);
+    }else{
+      el.throwbackCard.style.display = 'none';
+    }
+  }
+
+  el.helpBtn.addEventListener('click', ()=> el.helpOverlay.classList.add('open'));
+  el.helpCloseBtn.addEventListener('click', ()=> el.helpOverlay.classList.remove('open'));
+  el.helpOverlay.addEventListener('click', (e)=>{ if(e.target === el.helpOverlay) el.helpOverlay.classList.remove('open'); });
+
+  el.promptBtn.addEventListener('click', ()=>{
+    const p = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
+    el.noteInput.value = p.charAt(0).toUpperCase() + p.slice(1) + ' ';
+    el.noteInput.focus();
+  });
+
+  el.capsuleToggle.addEventListener('change', ()=>{
+    el.capsuleDate.style.display = el.capsuleToggle.checked ? 'inline-block' : 'none';
+  });
+
+  el.filterUI.addEventListener('click', (e)=>{
+    if(!e.target.classList.contains('filter-btn')) return;
+    
+    if(e.target.dataset.who) {
+      filterWho = e.target.dataset.who;
+      document.querySelectorAll('#filterUI [data-who]').forEach(b => b.classList.toggle('active', b === e.target));
+    }
+    renderConstellation();
+  });
+
+  function renderBgStars(){
+    const w = window.innerWidth;
+    const h = Math.max(window.innerHeight, 800);
+    el.bgStars.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    el.bgStars.setAttribute('width', w);
+    el.bgStars.setAttribute('height', h);
+    let svgMarkup = '';
+
+    let count = Math.floor((w*h)/9000);
+    let starTint = '#ffffff';
+
+    if(currentSeason === 'spring') starTint = '#e0d8ff';
+    else if(currentSeason === 'summer') { count = Math.floor((w*h)/6000); starTint = '#fff4d8'; }
+    else if(currentSeason === 'autumn') starTint = '#ffd8c2';
+    else if(currentSeason === 'winter') { count = Math.floor((w*h)/12000); starTint = '#d4f0ff'; }
+
+    for(let i=0;i<count;i++){
+      const x = Math.random()*w;
+      const y = Math.random()*h;
+      const r = Math.random()*1.2 + 0.3;
+      const o = Math.random()*0.5 + 0.15;
+      svgMarkup += `<circle cx="${x}" cy="${y}" r="${r}" fill="${starTint}" opacity="${o}"/>`;
+    }
+    el.bgStars.innerHTML = svgMarkup;
+    el.shootingLayer.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    el.shootingLayer.setAttribute('width', w);
+    el.shootingLayer.setAttribute('height', h);
+  }
+  renderBgStars();
+  window.addEventListener('resize', renderBgStars);
+
+  function spawnShootingStar(){
+    const w = window.innerWidth;
+    const h = Math.max(window.innerHeight, 800);
+    const startX = Math.random() * w * 0.6;
+    const startY = Math.random() * h * 0.3;
+    const length = 90 + Math.random() * 60;
+    const angle = 28 + Math.random() * 10;
+    const rad = angle * Math.PI / 180;
+    const endX = startX + length * Math.cos(rad);
+    const endY = startY + length * Math.sin(rad);
+    const dur = 1.1 + Math.random() * 0.6;
+
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.innerHTML = `<line x1="${startX}" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" opacity="0"><animate attributeName="opacity" values="0;0.9;0" dur="${dur}s" begin="0s" fill="freeze"/></line>`;
+    el.shootingLayer.appendChild(g);
+    setTimeout(()=> g.remove(), dur * 1000 + 200);
+  }
+  function scheduleShootingStars(){
+    spawnShootingStar();
+    const nextIn = 6000 + Math.random() * 9000;
+    setTimeout(scheduleShootingStars, nextIn);
+  }
+  setTimeout(scheduleShootingStars, 2500);
+
+  el.whoBtns.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      el.whoBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      currentWho = btn.dataset.who;
+    });
+  });
+
+  function formatDate(iso){
+    const d = new Date(iso);
+    return d.toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
+  }
+
+  function escapeHtml(str){
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function highlightText(text){
+    const escaped = escapeHtml(text);
+    return escaped.replace(/(i love you)/gi, '<span class="highlight">$1</span>');
+  }
+
+  function heartPoints(n, cx, cy, scale){
+    const pts = [];
+    for(let i=0;i<n;i++){
+      const t = (i / n) * Math.PI * 2;
+      const hx = 16 * Math.pow(Math.sin(t), 3);
+      const hy = -(13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t));
+      pts.push({ x: cx + hx*scale, y: cy + hy*scale });
+    }
+    return pts;
+  }
+
+  function renderConstellation(){
+    const filtered = entries.filter(e => filterWho === 'all' || e.who === filterWho);
+    if(filtered.length === 0){
+      el.constellationWrap.innerHTML = `<div class="empty-sky"><div class="big-star">&#10022;</div><div>no stars found with these filters.</div></div>`;
+      el.nightCount.textContent = '0 stars';
+      return;
+    }
+    el.nightCount.textContent = filtered.length + ' star' + (filtered.length === 1 ? '' : 's');
+
+    const sorted = [...filtered].sort((a,b)=> new Date(a.date) - new Date(b.date));
+    const w = 560;
+    const clusterSize = 7;
+    const heartBoxH = 200;
+    const fullClusters = Math.floor(sorted.length / clusterSize);
+    const leftover = sorted.length % clusterSize;
+    const gridRows = leftover > 0 ? Math.ceil(leftover / 6) : 0;
+    const h = Math.max(200, fullClusters * heartBoxH + gridRows * 70 + 80);
+
+    let points = [];
+    let idx = 0;
+    for(let c=0;c<fullClusters;c++){
+      const chunk = sorted.slice(idx, idx + clusterSize);
+      const cx = w/2, cy = 90 + c*heartBoxH;
+      const hp = heartPoints(clusterSize, cx, cy, 6.2);
+      chunk.forEach((entry, i)=> points.push({ x: hp[i].x, y: hp[i].y, entry }));
+      idx += clusterSize;
+    }
+
+    if(leftover > 0){
+      const chunk = sorted.slice(idx);
+      const marginX = 50, marginY = fullClusters * heartBoxH + 90, usableW = w - marginX*2, rowH = 70;
+      chunk.forEach((entry, i)=>{
+        const row = Math.floor(i / 6);
+        const col = i % 6;
+        const rowCount = Math.min(6, chunk.length - row*6);
+        const spacing = rowCount > 1 ? usableW / (rowCount - 1) : 0;
+        const x = rowCount > 1 ? marginX + col*spacing : w/2;
+        const y = marginY + row*rowH + (i % 3 === 0 ? -10 : 8);
+        points.push({ x, y, entry });
+      });
+    }
+
+    const dateGroups = {};
+    entries.forEach(e=>{
+      const key = dateKey(e.date);
+      if(!dateGroups[key]) dateGroups[key] = [];
+      dateGroups[key].push(e.who);
+    });
+    function bothWroteToday(entry){
+      const key = dateKey(entry.date);
+      const whos = new Set(dateGroups[key]);
+      return whos.has('him') && whos.has('her');
+    }
+
+    let lines = '';
+    for(let i=1;i<points.length;i++){
+      lines += `<line x1="${points[i-1].x}" y1="${points[i-1].y}" x2="${points[i].x}" y2="${points[i].y}" stroke="rgba(185,168,255,0.22)" stroke-width="1"/>`;
+    }
+
+    let stars = '';
+    points.forEach((p, pIdx)=>{
+      const entry = p.entry;
+      const isLatest = pIdx === points.length - 1;
+      const locked = entry.unlockDate && new Date(entry.unlockDate) > new Date();
+      const color = entry.who === 'her' ? '#f2c572' : '#b9a8ff';
+      const milestone = isMilestoneDay(dayNumberFor(entry.date));
+      const shared = bothWroteToday(entry);
+
+      let extras = '';
+      if(isLatest && !locked){
+        extras += `<circle class="core" r="10" fill="${color}" opacity="0.18"><animate attributeName="r" values="9;13;9" dur="2.4s" repeatCount="indefinite"/></circle>`;
+      }
+      if(milestone && !locked){
+        extras += `<circle r="11" fill="none" stroke="#f2c572" stroke-width="1.4" opacity="0.8"/>`;
+      }
+      if(shared && !locked){
+        extras += `<circle r="14" fill="#ffffff" opacity="0.06"/>`;
+      }
+
+      const len = entry.text.length;
+      const radius = len > 300 ? 7.5 : (len > 100 ? 6 : 4.5);
+      const tClass = locked ? '' : `twinkle-${Math.floor(Math.random() * 3) + 1}`;
+
+      stars += `
+        <g class="star-node${locked ? ' locked' : ''}" data-id="${entry.id}" transform="translate(${p.x},${p.y})">
+          ${extras}
+          <circle class="core ${tClass}" r="${radius}" fill="${color}" opacity="${locked ? 0.5 : 1}"/>
+          ${locked ? `<text x="0" y="1" text-anchor="middle" font-size="6" fill="#0a0e24">&#128274;</text>` : ''}
+          <circle r="12" fill="transparent"/>
+        </g>`;
+    });
+
+    el.constellationWrap.innerHTML = `<svg class="constellation" viewBox="0 0 ${w} ${h}">${lines}${stars}</svg>`;
+    el.constellationWrap.querySelectorAll('.star-node').forEach(node=>{
+      node.addEventListener('click', ()=>{
+        const id = node.getAttribute('data-id');
+        const entry = entries.find(e=> String(e.id) === String(id));
+        if(!entry) return;
+        const locked = entry.unlockDate && new Date(entry.unlockDate) > new Date();
+        locked ? openLockedModal(entry) : openModal(entry);
+      });
+    });
+  }
+
+  function openModal(entry){
+    el.modalAuthor.textContent = entry.who === 'her' ? 'Sarah' : 'Ry';
+    el.modalDate.textContent = formatDate(entry.date);
+    el.modalText.innerHTML = highlightText(entry.text);
+    el.overlay.classList.add('open');
+  }
+
+  function openLockedModal(entry){
+    el.modalAuthor.textContent = entry.who === 'her' ? 'Sarah' : 'Ry';
+    el.modalDate.textContent = formatDate(entry.date);
+    const unlockStr = new Date(entry.unlockDate).toLocaleDateString(undefined, { month:'long', day:'numeric', year:'numeric' });
+    el.modalText.textContent = `🔒 this one's locked until ${unlockStr}.`;
+    el.overlay.classList.add('open');
+  }
+
+  function closeModal(){ el.overlay.classList.remove('open'); }
+  el.closeBtn.addEventListener('click', closeModal);
+  el.overlay.addEventListener('click', (e)=>{ if(e.target === el.overlay) closeModal(); });
+
+  el.firstStarBtn.addEventListener('click', ()=>{
+    if(entries.length === 0) return;
+    const sorted = [...entries].sort((a,b)=> new Date(a.date) - new Date(b.date));
+    const first = sorted[0];
+    const locked = first.unlockDate && new Date(first.unlockDate) > new Date();
+    locked ? openLockedModal(first) : openModal(first);
+  });
+
+  async function loadEntries(){
+    try{
+      const res = await fetch(BIN_URL + '/latest', { headers: { 'X-Master-Key': MASTER_KEY } });
+      if(!res.ok) throw new Error('bad response');
+      const data = await res.json();
+      entries = (data.record && data.record.entries) || [];
+    }catch(err){
+      entries = [];
+      el.statusLine.textContent = 'could not load the sky — check your connection';
+    }
+    renderConstellation();
+    renderBadges();
+    renderThrowback();
+  }
+
+  async function saveEntries(){
+    try{
+      const res = await fetch(BIN_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_KEY },
+        body: JSON.stringify({ entries: entries })
+      });
+      return res.ok;
+    }catch(err){
+      return false;
+    }
+  }
+
+  el.sendBtn.addEventListener('click', async ()=>{
+    const text = el.noteInput.value.trim();
+    if(!text){
+      el.statusLine.textContent = 'write something first';
+      return;
+    }
+    el.sendBtn.disabled = true;
+    el.statusLine.textContent = 'placing your star...';
+
+    const newEntry = {
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+      date: new Date().toISOString(),
+      text: text,
+      who: currentWho,
+      unlockDate: (el.capsuleToggle.checked && el.capsuleDate.value) ? new Date(el.capsuleDate.value).toISOString() : undefined
+    };
+    const previous = entries.slice();
+    entries.push(newEntry);
+    renderConstellation();
+    renderBadges();
+
+    const ok = await saveEntries();
+    el.sendBtn.disabled = false;
+    if(ok){
+      el.noteInput.value = '';
+      el.capsuleToggle.checked = false;
+      el.capsuleDate.style.display = 'none';
+      el.capsuleDate.value = '';
+      el.statusLine.textContent = 'added to the sky ✦';
+      setTimeout(()=>{ el.statusLine.textContent = ''; }, 2500);
+    }else{
+      entries = previous;
+      renderConstellation();
+      renderBadges();
+      el.statusLine.textContent = "couldn't save — check connection and try again";
+    }
+  });
+
+  loadEntries();
+})();
+</script>
+<script data-goatcounter="https://miohvh.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
