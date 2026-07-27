@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Sky</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg-deep: #0a0e24;
+    --bg-mid: #131a3a;
+    --bg-horizon: #1d2650;
+    --lavender: #b9a8ff;
+    --gold: #f2c572;
+    --text-soft: #f4f1ea;
+    --muted: #8a90b8;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body{ margin: 0; padding: 0; }
+
+  body{
+    font-family: 'Inter', sans-serif;
+    color: var(--text-soft);
+    background: radial-gradient(ellipse at 50% 0%, var(--bg-horizon) 0%, var(--bg-mid) 45%, var(--bg-deep) 100%);
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  .stars-bg{
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container{
+    position: relative;
+    z-index: 1;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  .eyebrow{
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  h1{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 34px;
+    text-align: center;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+
+  .subtitle{
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 40px;
+  }
+
+  .constellation-card{
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 28px 20px;
+    margin-bottom: 32px;
+    position: relative;
+    min-height: 200px;
+  }
+
+  .constellation-label{
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .night-count{
+    font-family: 'Fraunces', serif;
+    color: var(--gold);
+    font-size: 13px;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  svg.constellation{
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .star-node{ cursor: pointer; }
+
+  .empty-sky, .loading-sky{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 160px;
+    color: var(--muted);
+    font-size: 14px;
+    text-align: center;
+    gap: 8px;
+  }
+  .empty-sky .big-star{ font-size: 22px; color: var(--gold); }
+
+  .compose{
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 24px 20px;
+  }
+
+  .compose label{
+    display: block;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  textarea{
+    width: 100%;
+    min-height: 120px;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 16px;
+    color: var(--text-soft);
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    line-height: 1.5;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  textarea:focus{ border-color: var(--lavender); }
+  textarea::placeholder{
+    color: rgba(244,241,234,0.35);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+  }
+
+  .compose-footer{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 14px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .signed-as{ display: flex; gap: 8px; font-size: 13px; }
+  .signed-as button{
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.14);
+    color: var(--muted);
+    border-radius: 100px;
+    padding: 6px 14px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s ease;
+  }
+  .signed-as button.active{
+    border-color: var(--lavender);
+    color: var(--lavender);
+    background: rgba(185,168,255,0.08);
+  }
+
+  .send-btn{
+    background: var(--gold);
+    color: #241a04;
+    border: none;
+    border-radius: 100px;
+    padding: 10px 22px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+  .send-btn:hover{ transform: translateY(-1px); }
+  .send-btn:disabled{ opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .status-line{
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 14px;
+    min-height: 16px;
+  }
+
+  .overlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(5,7,20,0.72);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    padding: 24px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .overlay.open{ opacity: 1; pointer-events: auto; }
+
+  .note-card{
+    background: linear-gradient(160deg, #1c2450, #11162e);
+    border: 1px solid rgba(185,168,255,0.25);
+    border-radius: 20px;
+    padding: 32px 28px;
+    max-width: 440px;
+    width: 100%;
+    box-shadow: 0 0 60px rgba(185,168,255,0.12);
+    transform: scale(0.92);
+    transition: transform 0.25s ease;
+    position: relative;
+  }
+  .overlay.open .note-card{ transform: scale(1); }
+
+  .note-meta{
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
+  }
+  .note-author{ color: var(--gold); }
+  .note-text{
+    font-family: 'Caveat', cursive;
+    font-size: 26px;
+    line-height: 1.45;
+    color: var(--text-soft);
+    white-space: pre-wrap;
+  }
+  .close-btn{
+    position: absolute;
+    top: 16px;
+    right: 18px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 20px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .close-btn:hover{ color: var(--text-soft); }
+
+  .footer-note{
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 28px;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 420px){
+    h1{ font-size: 28px; }
+    .note-text{ font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+  <svg class="stars-bg" id="bgStars"></svg>
+
+  <div class="container">
+    <div class="eyebrow">a note, every night</div>
+    <h1>Our Sky</h1>
+    <div class="subtitle">every note becomes a star. this is the sky we're building together.</div>
+
+    <div class="constellation-card">
+      <div class="constellation-label">
+        <span>the constellation so far</span>
+        <span class="night-count" id="nightCount"></span>
+      </div>
+      <div id="constellationWrap">
+        <div class="loading-sky">loading the sky...</div>
+      </div>
+    </div>
+
+    <div class="compose">
+      <label for="noteInput">tonight's note</label>
+      <textarea id="noteInput" placeholder="write something for her to wake up to..."></textarea>
+      <div class="compose-footer">
+        <div class="signed-as">
+          <button type="button" class="who-btn active" data-who="him">from him</button>
+          <button type="button" class="who-btn" data-who="her">from her</button>
+        </div>
+        <button class="send-btn" id="sendBtn">add to the sky</button>
+      </div>
+      <div class="status-line" id="statusLine"></div>
+    </div>
+
+    <div class="footer-note">everything here saves automatically — just open this same link any time to see the whole sky.</div>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="note-card">
+      <button class="close-btn" id="closeBtn">&times;</button>
+      <div class="note-meta">
+        <span class="note-author" id="modalAuthor"></span>
+        <span id="modalDate"></span>
+      </div>
+      <div class="note-text" id="modalText"></div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  // ---- JSONBin config ----
+  const BIN_ID = '6a66cc35f5f4af5e29c5d394';
+  const MASTER_KEY = '$2a$10$akGfkYxk.vqofbyXbD1sLOtkaP8UhUHV/WgHBIfjQsQyklnbitsfK';
+  const BIN_URL = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
+
+  let entries = [];
+  let currentWho = 'him';
+
+  const el = {
+    constellationWrap: document.getElementById('constellationWrap'),
+    nightCount: document.getElementById('nightCount'),
+    noteInput: document.getElementById('noteInput'),
+    sendBtn: document.getElementById('sendBtn'),
+    statusLine: document.getElementById('statusLine'),
+    overlay: document.getElementById('overlay'),
+    closeBtn: document.getElementById('closeBtn'),
+    modalAuthor: document.getElementById('modalAuthor'),
+    modalDate: document.getElementById('modalDate'),
+    modalText: document.getElementById('modalText'),
+    bgStars: document.getElementById('bgStars'),
+    whoBtns: document.querySelectorAll('.who-btn')
+  };
+
+  function renderBgStars(){
+    const w = window.innerWidth;
+    const h = Math.max(window.innerHeight, 800);
+    el.bgStars.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    el.bgStars.setAttribute('width', w);
+    el.bgStars.setAttribute('height', h);
+    let svgMarkup = '';
+    const count = Math.floor((w*h)/9000);
+    for(let i=0;i<count;i++){
+      const x = Math.random()*w;
+      const y = Math.random()*h;
+      const r = Math.random()*1.2 + 0.3;
+      const o = Math.random()*0.5 + 0.15;
+      svgMarkup += `<circle cx="${x}" cy="${y}" r="${r}" fill="#ffffff" opacity="${o}"/>`;
+    }
+    el.bgStars.innerHTML = svgMarkup;
+  }
+  renderBgStars();
+  window.addEventListener('resize', renderBgStars);
+
+  el.whoBtns.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      el.whoBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      currentWho = btn.dataset.who;
+    });
+  });
+
+  function formatDate(iso){
+    const d = new Date(iso);
+    return d.toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
+  }
+
+  function renderConstellation(){
+    if(entries.length === 0){
+      el.constellationWrap.innerHTML = `
+        <div class="empty-sky">
+          <div class="big-star">&#10022;</div>
+          <div>no stars yet. write tonight's note and place the first one.</div>
+        </div>`;
+      el.nightCount.textContent = '';
+      return;
+    }
+
+    el.nightCount.textContent = entries.length === 1 ? '1 night' : entries.length + ' nights';
+
+    const sorted = [...entries].sort((a,b)=> new Date(a.date) - new Date(b.date));
+    const w = 560, h = Math.max(160, 70 * Math.ceil(sorted.length/6) + 90);
+    const marginX = 50, marginY = 50;
+    const usableW = w - marginX*2;
+    const rowH = 70;
+
+    const points = sorted.map((entry, i)=>{
+      const row = Math.floor(i / 6);
+      const col = i % 6;
+      const rowCount = Math.min(6, sorted.length - row*6);
+      const spacing = rowCount > 1 ? usableW / (rowCount - 1) : 0;
+      const jitterY = (i % 3 === 0) ? -12 : (i % 3 === 1 ? 10 : -4);
+      const x = rowCount > 1 ? marginX + col*spacing : w/2;
+      const y = marginY + row*rowH + jitterY;
+      return {x, y, entry};
+    });
+
+    let lines = '';
+    for(let i=1;i<points.length;i++){
+      lines += `<line x1="${points[i-1].x}" y1="${points[i-1].y}" x2="${points[i].x}" y2="${points[i].y}" stroke="rgba(185,168,255,0.25)" stroke-width="1"/>`;
+    }
+
+    let stars = '';
+    points.forEach((p, idx)=>{
+      const isLatest = idx === points.length - 1;
+      const color = p.entry.who === 'her' ? '#f2c572' : '#b9a8ff';
+      stars += `
+        <g class="star-node" data-id="${p.entry.id}" transform="translate(${p.x},${p.y})">
+          ${isLatest ? `<circle class="core" r="10" fill="${color}" opacity="0.18"><animate attributeName="r" values="9;13;9" dur="2.4s" repeatCount="indefinite"/></circle>` : ''}
+          <circle class="core" r="5" fill="${color}"/>
+          <circle r="9" fill="transparent"/>
+        </g>`;
+    });
+
+    el.constellationWrap.innerHTML = `<svg class="constellation" viewBox="0 0 ${w} ${h}">${lines}${stars}</svg>`;
+
+    el.constellationWrap.querySelectorAll('.star-node').forEach(node=>{
+      node.addEventListener('click', ()=>{
+        const id = node.getAttribute('data-id');
+        const entry = entries.find(e=> String(e.id) === String(id));
+        if(entry) openModal(entry);
+      });
+    });
+  }
+
+  function openModal(entry){
+    el.modalAuthor.textContent = entry.who === 'her' ? 'from her' : 'from him';
+    el.modalDate.textContent = formatDate(entry.date);
+    el.modalText.textContent = entry.text;
+    el.overlay.classList.add('open');
+  }
+  function closeModal(){ el.overlay.classList.remove('open'); }
+  el.closeBtn.addEventListener('click', closeModal);
+  el.overlay.addEventListener('click', (e)=>{ if(e.target === el.overlay) closeModal(); });
+
+  async function loadEntries(){
+    try{
+      const res = await fetch(BIN_URL + '/latest', {
+        headers: { 'X-Master-Key': MASTER_KEY }
+      });
+      if(!res.ok) throw new Error('bad response');
+      const data = await res.json();
+      entries = (data.record && data.record.entries) || [];
+    }catch(err){
+      entries = [];
+      el.statusLine.textContent = 'could not load the sky — check your connection';
+    }
+    renderConstellation();
+  }
+
+  async function saveEntries(){
+    try{
+      const res = await fetch(BIN_URL, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': MASTER_KEY
+        },
+        body: JSON.stringify({ entries: entries })
+      });
+      return res.ok;
+    }catch(err){
+      return false;
+    }
+  }
+
+  el.sendBtn.addEventListener('click', async ()=>{
+    const text = el.noteInput.value.trim();
+    if(!text){
+      el.statusLine.textContent = 'write something first';
+      return;
+    }
+    el.sendBtn.disabled = true;
+    el.statusLine.textContent = 'placing your star...';
+
+    const newEntry = {
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+      date: new Date().toISOString(),
+      text: text,
+      who: currentWho
+    };
+    const previous = entries.slice();
+    entries.push(newEntry);
+    renderConstellation();
+
+    const ok = await saveEntries();
+    el.sendBtn.disabled = false;
+    if(ok){
+      el.noteInput.value = '';
+      el.statusLine.textContent = 'added to the sky ✦';
+      setTimeout(()=>{ el.statusLine.textContent = ''; }, 2500);
+    }else{
+      entries = previous;
+      renderConstellation();
+      el.statusLine.textContent = "couldn't save — check connection and try again";
+    }
+  });
+
+  loadEntries();
+})();
+</script>
+</body>
+</html>
